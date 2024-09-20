@@ -1,0 +1,9 @@
+python=3.9
+torchvision
+cudatoolkit=11.3
+pandas
+matplotlib
+scikit-learn
+scikit-image
+pip
+- pip install numpy tensorflow keras tabulate

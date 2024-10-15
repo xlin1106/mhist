@@ -41,7 +41,7 @@ List of model names to choose from (case sensitive):
 
 All models are created with a PyTorch and Tensorflow version. Please specify which version you'd like to use using the flag -t.
 
-If the program does not run, check to make sure that you have a folder called "data" that contains the annotations.csv spreadsheet and another folder called "images" for all the images of the tissues.
+If the program does not run, check to make sure that you have a folder called "data" that contains the annotations.csv spreadsheet and another folder called "images" for all the images of the tissues. Also ensure that you have downloaded the model.py script which contains all the function builds for every model and version.
 
 ## **Limitations**
 - Slight differences between the Tensorflow and PyTorch version of models

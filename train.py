@@ -43,10 +43,11 @@ def custom_preprocessing(image, path_mean, path_std, augmentation=False):
     image = (image - path_mean) / (path_std + 1e-7)
     return image
 
-def get_model(model_name):
+def get_model(model_name, add_type):
     try:
+        name = model_name + '_' + add_type
         # Dynamically get the corresponding model function from model.py
-        model_function = getattr(model, f'build_{model_name}')
+        model_function = getattr(model, f'build_{name}')
         return model_function(input_shape=(224, 224, 3))
     except AttributeError as e:
         raise ValueError(f"Model {model_name} not found. Error: {str(e)}")
@@ -61,8 +62,12 @@ def main():
     args = parser.parse_args()
 
     # Get the specified model
-    model = get_model(args.model)
     model_type = args.type
+    if model_type == 'tensorflow':
+        add_type = 't'
+    elif model_type == 'pytorch':
+        add_type = 'p'
+    model = get_model(args.model, add_type)
 
     data_dir = './data/'
 
@@ -207,7 +212,7 @@ def main():
         plt.savefig('model_loss.png')
         plt.clf()  # Clear the current figure
         
-    else:
+    elif model_type == 'pytorch':
         class MHISTDataset(Dataset):
             def __init__(self, img_dir, labels_file, transform=None):
                 self.img_dir = img_dir

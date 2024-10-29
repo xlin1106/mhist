@@ -29,7 +29,7 @@ This code follows the dataset of images provided by the [BMIRDS Datasets](https:
 
 
 ## **Usage**
-To run the program, use the train.py script.
+To run the program, use the train.py script, specifying the model and version type with -m and -t respectively.
 Please take a look at the model.py script to see what models you can choose from.
 The names written following "build" are the possible arguments taken.
 
@@ -42,7 +42,13 @@ List of model names to choose from (case sensitive):
 
 All models are created with a PyTorch and Tensorflow version. Please specify which version you'd like to use using the flag -t.
 
-If the program does not run, check to make sure that you have a folder called "data" that contains the annotations.csv spreadsheet and another folder called "images" for all the images of the tissues. Also ensure that you have downloaded the model.py script which contains all the function builds for every model and version.
+If the program does not run, check to make sure that you have a folder called "data" that contains the annotations.csv spreadsheet and another folder called "images" for all the images of the tissues. Also, ensure that you have downloaded the model.py script which contains all the function builds for every model and version.
+
+### **Example**
+The following is an example of running the ResNet18 Pytorch model on the dataset.
+```
+python train.py -m resnet18 -t pytorch
+```
 
 ## **Limitations**
 - Slight differences between the Tensorflow and PyTorch version of models

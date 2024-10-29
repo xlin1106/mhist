@@ -37,6 +37,61 @@ def build_mymodel_t(input_shape=(224, 224, 3)):
     return model
 
 
+def build_resnet18_t(input_shape=(224, 224, 3)):
+    model = keras.Sequential([
+        # Initial convolution and max-pooling
+        layers.Conv2D(64, kernel_size=(7, 7), strides=2, padding="same", activation='relu', input_shape=input_shape),
+        layers.BatchNormalization(),
+        layers.MaxPooling2D(pool_size=(3, 3), strides=2, padding='same'),
+
+        # Residual Block 1
+        layers.Conv2D(64, kernel_size=(3, 3), padding="same", activation='relu'),
+        layers.BatchNormalization(),
+        layers.Conv2D(64, kernel_size=(3, 3), padding="same"),
+        layers.BatchNormalization(),
+        layers.ReLU(),
+        # Adding a shortcut (identity mapping) for ResNet structure
+        layers.Conv2D(64, kernel_size=(1, 1), padding="same", activation='relu'),
+
+        # Residual Block 2
+        layers.Conv2D(128, kernel_size=(3, 3), strides=2, padding="same", activation='relu'),
+        layers.BatchNormalization(),
+        layers.Conv2D(128, kernel_size=(3, 3), padding="same"),
+        layers.BatchNormalization(),
+        layers.ReLU(),
+        # Adding a shortcut (identity mapping) for ResNet structure
+        layers.Conv2D(128, kernel_size=(1, 1), strides=2, padding="same", activation='relu'),
+
+        # Residual Block 3
+        layers.Conv2D(256, kernel_size=(3, 3), strides=2, padding="same", activation='relu'),
+        layers.BatchNormalization(),
+        layers.Conv2D(256, kernel_size=(3, 3), padding="same"),
+        layers.BatchNormalization(),
+        layers.ReLU(),
+        # Adding a shortcut (identity mapping) for ResNet structure
+        layers.Conv2D(256, kernel_size=(1, 1), strides=2, padding="same", activation='relu'),
+
+        # Residual Block 4
+        layers.Conv2D(512, kernel_size=(3, 3), strides=2, padding="same", activation='relu'),
+        layers.BatchNormalization(),
+        layers.Conv2D(512, kernel_size=(3, 3), padding="same"),
+        layers.BatchNormalization(),
+        layers.ReLU(),
+        # Adding a shortcut (identity mapping) for ResNet structure
+        layers.Conv2D(512, kernel_size=(1, 1), strides=2, padding="same", activation='relu'),
+
+        # Global Average Pooling
+        layers.GlobalAveragePooling2D(),
+
+        # Dense and Dropout layers
+        layers.Dense(512, activation='relu'),
+        layers.Dropout(0.5),
+        layers.Dense(1, activation='sigmoid'),  # Use 'sigmoid' for binary classification
+    ])
+
+    return model
+
+
 def build_resnet50_t(input_shape=(224, 224, 3)):
     base_model = ResNet50(
         include_top=False,

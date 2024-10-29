@@ -25,7 +25,8 @@ It is recommended to create a conda environment to set up all the packages and d
 ### Dataset
 This code follows the dataset of images provided by the [BMIRDS Datasets](https://bmirds.github.io/MHIST/). This dataset should include 3,152 colorectal polyp images and an annotations.csv.
 
-![Images of two different types of colorectal polyp images with their image name/label.](https://cdn.discordapp.com/attachments/948086387096293476/1295789549615845418/Screenshot_2024-10-15_094143.png?ex=670fed8f&is=670e9c0f&hm=6f68b0e5c7ccbf971661b67b4df84fabdfd1d37c4f621486196094b4ff666e29&)
+![Images of two different types of colorectal polyp images with their image name/label.](https://github.com/user-attachments/assets/f6267b45-fd28-4440-aa9e-3f20f0732690)
+
 
 ## **Usage**
 To run the program, use the train.py script.

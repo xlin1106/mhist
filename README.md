@@ -49,6 +49,8 @@ The following is an example of running the ResNet18 Pytorch model on the dataset
 ```
 python train.py -m resnet18 -t pytorch
 ```
+It should run for 100 epochs and should look something similar to this:
+![resnet18 run image](https://github.com/user-attachments/assets/988e57ee-7824-4f14-ad8c-64da15836552)
 
 ## **Limitations**
 - Slight differences between the Tensorflow and PyTorch version of models

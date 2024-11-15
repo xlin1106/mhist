@@ -1,4 +1,5 @@
 import tensorflow as tf
+from tensorflow.keras.utils import Sequence
 import numpy as np
 import os
 import pandas as pd
@@ -18,6 +19,47 @@ from torch.optim.lr_scheduler import ExponentialLR
 import model 
 
 ImageDataGenerator = tf.keras.preprocessing.image.ImageDataGenerator
+
+"""
+class WeightedDataGenerator(Sequence):
+    def __init__(self, dataframe, directory, image_data_gen, target_size, batch_size, x_col, y_col, weight_col, class_mode):
+        self.dataframe = dataframe
+        self.directory = directory
+        self.image_data_gen = image_data_gen
+        self.target_size = target_size
+        self.batch_size = batch_size
+        self.x_col = x_col
+        self.y_col = y_col
+        self.weight_col = weight_col
+        self.class_mode = class_mode
+        self.indices = np.arange(len(self.dataframe))
+
+    def __len__(self):
+        return int(np.ceil(len(self.dataframe) / self.batch_size))
+
+    def __getitem__(self, index):
+        batch_indices = self.indices[index * self.batch_size:(index + 1) * self.batch_size]
+        batch_df = self.dataframe.iloc[batch_indices]
+
+        images = []
+        labels = []
+        weights = []
+
+        for _, row in batch_df.iterrows():
+            img = tf.keras.preprocessing.image.load_img(
+                os.path.join(self.directory, row[self.x_col]),
+                target_size=self.target_size
+            )
+            img = tf.keras.preprocessing.image.img_to_array(img)
+            img = self.image_data_gen.random_transform(img)
+            img = self.image_data_gen.standardize(img)
+
+            images.append(img)
+            labels.append(row[self.y_col])
+            weights.append(row[self.weight_col])
+
+        return np.array(images), np.array(labels), np.array(weights)
+"""
 
 path_mean = np.array([94.07080238, 82.69394267, 98.84364401])
 path_std = np.array([23.95747985, 29.23472607, 20.76279442])
@@ -76,6 +118,7 @@ def main():
         Make sure there is a folder called "data" on your device that contains the annotations spreadsheet and all the images
         The images should be in their own folder called "images" within the "data" folder """
     if model_type == 'tensorflow':
+
         train_datagen = ImageDataGenerator(
             rotation_range=20,  
             width_shift_range=0.05,  
@@ -93,10 +136,36 @@ def main():
         )
     
         annotations = pd.read_csv(os.path.join(data_dir, "annotations.csv")) #import the spreadsheet and save it into a variable
+        annotations['confidence'] = annotations["Number of Annotators who Selected SSA (Out of 7)"] / 7.0
     
         train_df = annotations[annotations['Partition'] == 'train']
         test_df = annotations[annotations['Partition'] == 'test']
-    
+        """
+        train_loader = WeightedDataGenerator(
+            dataframe=train_df,
+            directory='./data/images',
+            image_data_gen=train_datagen,
+            target_size=(224, 224),
+            batch_size=32,
+            x_col="Image Name",
+            y_col="Majority Vote Label",
+            weight_col="confidence",
+            class_mode='binary'
+        )
+
+        test_loader = WeightedDataGenerator(
+            dataframe=test_df,
+            directory='./data/images',
+            image_data_gen=valid_datagen,
+            target_size=(224, 224),
+            batch_size=32,
+            x_col="Image Name",
+            y_col="Majority Vote Label",
+            weight_col="confidence",
+            class_mode='binary'
+        )
+
+        """
         train_loader = train_datagen.flow_from_dataframe(
             dataframe=train_df,
             directory='./data/images',
@@ -122,7 +191,10 @@ def main():
         batch_size = 128
     
         model.compile(loss="binary_crossentropy", optimizer="adam", metrics=["accuracy"])
-    
+
+        train_sample_weights = train_df['confidence'].values
+        test_sample_weights = test_df['confidence'].values
+
         history = model.fit(
             x=train_loader,
             y=None,
@@ -141,14 +213,25 @@ def main():
             validation_batch_size=None,
             validation_freq=1,
         )
-    
+        
+        """
+        history = model.fit(
+            train_loader,
+            epochs=args.epoch,
+            verbose="auto",
+            validation_data=test_loader,
+            initial_epoch=0
+        )
+        """
+        
         score = model.evaluate(test_loader, verbose=0)
         print("Test loss:", score[0])
         print("Test accuracy:", score[1])
     
         testpredictions = []
         testgroundtrues = []
-    
+
+        #LOOK AT THIS PART
         for x,y in test_loader:
             y_pred = model(x)
             testpredictions.append(y_pred)
@@ -211,7 +294,9 @@ def main():
         # Save the loss plot as a file
         plt.savefig('model_loss.png')
         plt.clf()  # Clear the current figure
-        
+
+
+    """ The following code is for the PyTorch models """
     elif model_type == 'pytorch':
         class MHISTDataset(Dataset):
             def __init__(self, img_dir, labels_file, transform=None):
@@ -228,11 +313,12 @@ def main():
         
                 # Map 'hp' and 'ssa' to integer labels
                 label = 0 if self.labels.iloc[idx, 1] == 'HP' else 1  # Assuming 'HP' -> 0 and 'SSA' -> 1
+                confidence = self.labels.iloc[idx, 2] / 7.0
         
                 if self.transform:
                     image = self.transform(image)
         
-                return image, label
+                return image, label, confidence
 
         # Define the transformations
         augmentation = transforms.Compose([
@@ -287,11 +373,14 @@ def main():
             correct_train = 0
             total_train = 0
         
-            for inputs, labels in train_loader:
+            for inputs, labels, confidences in train_loader:
                 optimizer.zero_grad()
                 
                 outputs = model(inputs)
                 loss = criterion(outputs, labels)
+
+                loss = (loss * confidences).mean() 
+                
                 loss.backward()
                 optimizer.step()
                 training_loss += loss.item()
@@ -313,9 +402,10 @@ def main():
             total_val = 0
         
             with torch.no_grad():
-                for inputs, labels in test_loader:
+                for inputs, labels, confidences in test_loader:
                     outputs = model(inputs)
                     loss = criterion(outputs, labels)
+                    loss = (loss * confidences).mean()
                     validation_loss += loss.item()
                     
                     _, predicted = torch.max(outputs.data, 1)

@@ -16,9 +16,9 @@ from torch.optim.lr_scheduler import ExponentialLR
 
 import model 
 
-def get_model(model_name, add_type):
+def get_model(model_name):
     try:
-        name = model_name + '_' + add_type
+        name = model_name
         # Dynamically get the corresponding model function from model.py
         model_function = getattr(model, f'build_{name}')
         return model_function(input_shape=(224, 224, 3))

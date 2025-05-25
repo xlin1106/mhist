@@ -19,8 +19,8 @@ from torchvision.models import EfficientNet_V2_S_Weights
 
 ### The following code refers to building all of the Tensorflow models
 
+# Create a model based on the MNIST digits model
 def build_mymodel_t(input_shape=(224, 224, 3)):
-    #create a model based off the mnist model
     model = keras.Sequential(
         [
             keras.Input(shape=input_shape),
@@ -36,7 +36,7 @@ def build_mymodel_t(input_shape=(224, 224, 3)):
 
     return model
 
-
+# Create the ResNet18 model
 def build_resnet18_t(input_shape=(224, 224, 3)):
     model = keras.Sequential([
         # Initial convolution and max-pooling
@@ -91,7 +91,7 @@ def build_resnet18_t(input_shape=(224, 224, 3)):
 
     return model
 
-
+# Create the ResNet50 model
 def build_resnet50_t(input_shape=(224, 224, 3)):
     base_model = ResNet50(
         include_top=False,
@@ -109,7 +109,7 @@ def build_resnet50_t(input_shape=(224, 224, 3)):
 
     return model
 
-
+# Create the MobileNet model
 def build_mobilenet_t(input_shape=(224, 224, 3)):
     base_model = MobileNetV2(
         input_shape=None,
@@ -129,7 +129,7 @@ def build_mobilenet_t(input_shape=(224, 224, 3)):
 
     return model
 
-
+# Create the EfficientNet model
 def build_efficientnet_t(input_shape=(224, 224, 3)):
     base_model = EfficientNetV2S(
         input_shape=None,
@@ -151,7 +151,7 @@ def build_efficientnet_t(input_shape=(224, 224, 3)):
 
 ### The following code refers to building all the PyTorch models
 
-### THIS MYMODEL PYTORCH VERSION IS NOT WORKING
+# Create the pytorch version for the MNIST digit model
 def build_mymodel_p(input_shape=(224,224,3)):
     class MHISTModel(nn.Module):
         def __init__(self):
@@ -181,7 +181,7 @@ def build_mymodel_p(input_shape=(224,224,3)):
     model = MHISTModel()
     return model
 
-
+# Create the pytorch version of the ResNet18 model
 def build_resnet18_p(input_shape=(224, 224, 3)):
     class ModifiedResNet18(nn.Module):
         def __init__(self):
@@ -211,7 +211,7 @@ def build_resnet18_p(input_shape=(224, 224, 3)):
 
     return model
 
-
+# Create the pytorch version of the ResNet50 model
 def build_resnet50_p(input_shape=(224, 224, 3)):
     class ModifiedResNet50(nn.Module):
         def __init__(self):
@@ -241,7 +241,7 @@ def build_resnet50_p(input_shape=(224, 224, 3)):
 
     return model
 
-
+# Create the pytorch version of the MobileNet model
 def build_mobilenet_p(input_shape=(224,224,3)):
     class ModifiedMobileNet(nn.Module):
         def __init__(self):
@@ -268,7 +268,7 @@ def build_mobilenet_p(input_shape=(224,224,3)):
     model = ModifiedMobileNet()
     return model
 
-
+# Create the pytorch version of the EfficientNet model
 def build_efficientnet_p(input_shape=(224,224,3)):
     class ModifiedEfficientNet(nn.Module):
         def __init__(self):

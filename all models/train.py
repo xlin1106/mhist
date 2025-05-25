@@ -22,7 +22,7 @@ ImageDataGenerator = tf.keras.preprocessing.image.ImageDataGenerator
 path_mean = np.array([94.07080238, 82.69394267, 98.84364401])
 path_std = np.array([23.95747985, 29.23472607, 20.76279442])
 
-
+# Create the normalization function to normalize every image input
 def normalization(image):
     path_mean = np.array([94.07080238, 82.69394267, 98.84364401])
     path_std = np.array([23.95747985, 29.23472607, 20.76279442])
@@ -33,6 +33,7 @@ def denormalize(image, mean, std):
     std = tf.reshape(tf.constant(std), (1, 1, 1, 3))
     return image * std + mean
 
+# Create a preprocessing function for augmentation
 def custom_preprocessing(image, path_mean, path_std, augmentation=False):
     if augmentation:
         image = tf.image.random_brightness(image, max_delta=0.2)  
@@ -43,6 +44,7 @@ def custom_preprocessing(image, path_mean, path_std, augmentation=False):
     image = (image - path_mean) / (path_std + 1e-7)
     return image
 
+# Create a function to get the specific model and version from model.py
 def get_model(model_name, add_type):
     try:
         name = model_name + '_' + add_type
@@ -52,6 +54,8 @@ def get_model(model_name, add_type):
     except AttributeError as e:
         raise ValueError(f"Model {model_name} not found. Error: {str(e)}")
 
+# Main function call
+# This is where training and testing the model occurs
 def main():
 
     # Parse command-line arguments
@@ -93,10 +97,12 @@ def main():
         )
     
         annotations = pd.read_csv(os.path.join(data_dir, "annotations.csv")) #import the spreadsheet and save it into a variable
-    
+
+        # Split the data into train set and test set
         train_df = annotations[annotations['Partition'] == 'train']
         test_df = annotations[annotations['Partition'] == 'test']
-    
+
+        # Load all the training data images
         train_loader = train_datagen.flow_from_dataframe(
             dataframe=train_df,
             directory='./data/images',
@@ -107,7 +113,8 @@ def main():
             class_mode='binary',
             shuffle=True
         )
-    
+
+        # Load all the testing data images
         test_loader = valid_datagen.flow_from_dataframe(
             dataframe=test_df,
             directory='./data/images',
@@ -122,7 +129,8 @@ def main():
         batch_size = 128
     
         model.compile(loss="binary_crossentropy", optimizer="adam", metrics=["accuracy"])
-    
+
+        # Train the model
         history = model.fit(
             x=train_loader,
             y=None,
@@ -141,7 +149,8 @@ def main():
             validation_batch_size=None,
             validation_freq=1,
         )
-    
+
+        # Display the model loss and accuracy
         score = model.evaluate(test_loader, verbose=0)
         print("Test loss:", score[0])
         print("Test accuracy:", score[1])

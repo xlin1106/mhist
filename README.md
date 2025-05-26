@@ -27,9 +27,10 @@ This code follows the dataset of images provided by the [BMIRDS Datasets](https:
 
 ![Images of two different types of colorectal polyp images with their image name/label.](https://github.com/user-attachments/assets/f6267b45-fd28-4440-aa9e-3f20f0732690)
 
+In every deep learning model used during testing, we represented SSA as 0 and HP as 1 for our classification labels. We used the partition assigned in the annotations.csv spreadsheet to split the images and labels into the training and testing datasets.
 
 ## **Usage**
-To run the program, use the train.py script, specifying the model and version type with -m and -t respectively.
+Download the train.py script and the model.py script from the all models folder. To run the program, use the train.py script, specifying the model and version type with -m and -t respectively.
 Please take a look at the model.py script to see what models you can choose from.
 The names written following "build" are the possible arguments taken.
 
